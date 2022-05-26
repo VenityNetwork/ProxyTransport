@@ -15,7 +15,7 @@ public class ZlibEncoder extends MessageToMessageEncoder<ByteBuf> {
     @SneakyThrows
     public static ByteBuf compress(ByteBuf buf) {
         ByteBuf compressed = buf.alloc().directBuffer(1024 * 1024 * 2);
-        Zlib.RAW.deflate(buf, compressed, 7);
+        Zlib.RAW.deflate(buf, compressed, 2);
         return compressed;
     }
 

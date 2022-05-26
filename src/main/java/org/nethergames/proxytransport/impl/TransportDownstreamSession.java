@@ -154,6 +154,8 @@ public class TransportDownstreamSession implements dev.waterdog.waterdogpe.netwo
     public void sendPacketImmediately(BedrockPacket bedrockPacket) {
         ByteBuf encoded = BedrockBatch.encodeSingle(bedrockPacket, this);
         try {
+            //ByteBuf compressed = ZStdEncoder.compress(encoded);
+            //DataPack pack = new DataPack(DataPack.CompressionType.METHOD_ZSTD, compressed);
             ByteBuf compressed = ZlibEncoder.compress(encoded);
             DataPack pack = new DataPack(DataPack.CompressionType.METHOD_ZLIB, compressed);
             this.channel.writeAndFlush(pack, this.voidPromise);
