@@ -13,6 +13,11 @@ public class ProxyTransport extends Plugin {
         getProxy().getServerInfoMap().removeServerInfoType(CustomTransportServerInfo.TYPE);
         getProxy().getServerInfoMap().registerServerInfoFactory(CustomTransportServerInfo.TYPE, CustomTransportServerInfo::new);
 
+        getProxy().getServers().forEach((server) -> {
+            getProxy().removeServerInfo(server.getServerName());
+            getProxy().registerServerInfo(new CustomTransportServerInfo(server.getServerName(), server.getAddress(), server.getPublicAddress()));
+        });
+
         setEventAdapter(new DefaultTransportEventAdapter());
     }
 
