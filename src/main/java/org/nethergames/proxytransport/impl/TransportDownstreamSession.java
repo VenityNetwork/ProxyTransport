@@ -280,7 +280,10 @@ public class TransportDownstreamSession implements dev.waterdog.waterdogpe.netwo
     }
 
     public void handleNetworkStackPacket() {
-        this.latency = (System.currentTimeMillis() - this.lastPingTimestamp) / 2;
+        if(!this.networkStackLatencyLock.get()) {
+            return;
+        }
+        this.latency = Math.max(1, (System.currentTimeMillis() - this.lastPingTimestamp));
         this.networkStackLatencyLock.set(false);
 
         // TODO: Filter upstream packet from sending TickSyncPacket to downstream server.
@@ -289,7 +292,7 @@ public class TransportDownstreamSession implements dev.waterdog.waterdogpe.netwo
         TickSyncPacket latencyPacket = new TickSyncPacket();
         latencyPacket.setRequestTimestamp(player.getPing());
         if (player.getDownstream() != null && player.getDownstream().getSession() != null) {
-            latencyPacket.setResponseTimestamp(player.getDownstream().getSession().getLatency());
+            latencyPacket.setResponseTimestamp(this.latency);
         } else {
             latencyPacket.setResponseTimestamp(0);
         }
@@ -299,7 +302,7 @@ public class TransportDownstreamSession implements dev.waterdog.waterdogpe.netwo
 
     private void determinePing() {
         if (!this.channel.isOpen() || this.networkStackLatencyLock.get()) return;
-
+        this.networkStackLatencyLock.set(true);
         NetworkStackLatencyPacket packet = new NetworkStackLatencyPacket();
         packet.setTimestamp(0);
         packet.setFromServer(true);
