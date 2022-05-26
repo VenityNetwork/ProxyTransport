@@ -43,12 +43,12 @@ public class PacketDecoder extends SimpleChannelInboundHandler<ByteBuf> {
             Zlib.RAW.inflate(compressed, decompressed, MAX_BUFFER_SIZE);
             decompressed.markReaderIndex();
 
-            if (skimByteBuf(codec, decompressed)) {
+            /*if (skimByteBuf(codec, decompressed)) {
                 // What this does: "Skimming" the packet ids for rewritable ids makes it possible for us to
                 // detect whether rewrites are necessary without decoding the entire thing first.
                 this.session.getPlayer().getUpstream().sendWrapped(compressed, false);
                 return;
-            }
+            }*/
 
 
             while (decompressed.isReadable()) {
