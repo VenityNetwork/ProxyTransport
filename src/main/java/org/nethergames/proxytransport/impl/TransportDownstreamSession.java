@@ -5,6 +5,7 @@ import com.nukkitx.protocol.bedrock.BedrockPacket;
 import com.nukkitx.protocol.bedrock.handler.BedrockPacketHandler;
 import com.nukkitx.protocol.bedrock.packet.NetworkStackLatencyPacket;
 import com.nukkitx.protocol.bedrock.packet.TickSyncPacket;
+import com.nukkitx.protocol.util.Zlib;
 import dev.waterdog.waterdogpe.network.bridge.AbstractDownstreamBatchBridge;
 import dev.waterdog.waterdogpe.network.bridge.TransferBatchBridge;
 import dev.waterdog.waterdogpe.network.downstream.ConnectedDownstreamHandler;
@@ -25,6 +26,7 @@ import org.nethergames.proxytransport.ProxyTransport;
 import org.nethergames.proxytransport.decoder.PacketDecoder;
 import org.nethergames.proxytransport.encoder.DataPackEncoder;
 import org.nethergames.proxytransport.encoder.ZStdEncoder;
+import org.nethergames.proxytransport.encoder.ZlibEncoder;
 import org.nethergames.proxytransport.integration.CustomTransportBatchBridge;
 import org.nethergames.proxytransport.utils.BedrockBatch;
 import org.nethergames.proxytransport.wrapper.DataPack;
@@ -152,8 +154,8 @@ public class TransportDownstreamSession implements dev.waterdog.waterdogpe.netwo
     public void sendPacketImmediately(BedrockPacket bedrockPacket) {
         ByteBuf encoded = BedrockBatch.encodeSingle(bedrockPacket, this);
         try {
-            ByteBuf compressed = ZStdEncoder.compress(encoded);
-            DataPack pack = new DataPack(DataPack.CompressionType.METHOD_ZSTD, compressed);
+            ByteBuf compressed = ZlibEncoder.compress(encoded);
+            DataPack pack = new DataPack(DataPack.CompressionType.METHOD_ZLIB, compressed);
             this.channel.writeAndFlush(pack, this.voidPromise);
         } finally {
             encoded.release();
@@ -186,7 +188,8 @@ public class TransportDownstreamSession implements dev.waterdog.waterdogpe.netwo
 
         ByteBuf buf = BedrockBatch.encodePackets(collection, this);
         try {
-            DataPack pack = new DataPack(DataPack.CompressionType.METHOD_ZSTD, ZStdEncoder.compress(buf));
+            //DataPack pack = new DataPack(DataPack.CompressionType.METHOD_ZSTD, ZStdEncoder.compress(buf));
+            DataPack pack = new DataPack(DataPack.CompressionType.METHOD_ZLIB, ZlibEncoder.compress(buf));
             this.channel.writeAndFlush(pack, this.voidPromise);
         } finally {
             buf.release();
